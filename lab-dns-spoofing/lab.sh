@@ -19,39 +19,6 @@ if [ ! -f cert.crt ] || [ ! -f key.pem ]; then
     sudo cp cert.crt /etc/pki/tls/certs/
     sudo update-ca-trust enable
     sudo update-ca-trust extract
-
-    # Find Firefox profile directory
-    FF_PROFILE_DIR=$(grep -E 'Path=.*default' ~/.mozilla/firefox/profiles.ini | cut -d'=' -f2)
-    if [ -z "$FF_PROFILE_DIR" ]; then
-        echo "Error: Could not find Firefox default profile"
-        exit 1
-    fi
-
-    FF_PROFILE_PATH="$HOME/.mozilla/firefox/$FF_PROFILE_DIR"
-
-    # Check if profile directory exists
-    if [ ! -d "$FF_PROFILE_PATH" ]; then
-        echo "Error: Firefox profile directory $FF_PROFILE_PATH does not exist"
-        exit 1
-    fi
-
-    # Add certificate to Firefox's NSS database
-    echo "Adding certificate to Firefox profile: $FF_PROFILE_PATH"
-    certutil -A -n "Self-Signed-Cert" -t "C,," -i "cert.crt" -d "sql:$FF_PROFILE_PATH"
-
-    if [ $? -eq 0 ]; then
-        echo "Certificate successfully added to Firefox"
-    else
-        echo "Error: Failed to add certificate"
-        exit 1
-    fi
-
-    if pgrep firefox > /dev/null; then
-        echo "Restarting Firefox to apply changes..."
-        pkill firefox
-        firefox &> /dev/null &
-    fi
-
 else
     echo "Using existing SSL certificates."
 fi
