@@ -17,17 +17,16 @@ ENTRY="$IP $HOSTNAME"
 
 # Check if entry already exists
 if grep -q "$ENTRY" "$HOSTS_FILE"; then
-    echo "Entry already exists in hosts file"
-    exit 0
-fi
-
-# Add entry to hosts file
-echo "$ENTRY" >> "$HOSTS_FILE"
-if [ $? -eq 0 ]; then
-    echo "Successfully added $ENTRY to $HOSTS_FILE"
+    echo "Entry already exists in hosts file, proceeding with next instructions"
 else
-    echo "Failed to add entry to $HOSTS_FILE"
-    exit 1
+    # Add entry to hosts file
+    echo "$ENTRY" >> "$HOSTS_FILE"
+    if [ $? -eq 0 ]; then
+        echo "Successfully added $ENTRY to $HOSTS_FILE"
+    else
+        echo "Failed to add entry to $HOSTS_FILE"
+        exit 1
+    fi
 fi
 
 # Check if index.html exists; generate only if missing
