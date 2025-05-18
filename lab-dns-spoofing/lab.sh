@@ -9,9 +9,12 @@ else
 fi
 
 # Check if certificates exist; generate only if missing
-if [ ! -f cert.pem ] || [ ! -f key.pem ]; then
+if [ ! -f cert.crt ] || [ ! -f key.pem ]; then
     echo "Generating SSL certificates..."
-    openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=localhost"
+    openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.crt -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=localhost"
+    sudo cp cert.crt /etc/pki/tls/certs/
+    sudo update-ca-trust enable
+    sudo update-ca-trust extract
 else
     echo "Using existing SSL certificates."
 fi
@@ -32,7 +35,7 @@ httpd = socketserver.TCPServer(('', PORT), Handler)
 
 # Set up SSL context
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
+context.load_cert_chain(certfile='cert.crt', keyfile='key.pem')
 
 # Wrap socket with SSL
 httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
