@@ -21,6 +21,15 @@ if grep -q "$ENTRY" "$HOSTS_FILE"; then
     exit 0
 fi
 
+# Add entry to hosts file
+echo "$ENTRY" >> "$HOSTS_FILE"
+if [ $? -eq 0 ]; then
+    echo "Successfully added $ENTRY to $HOSTS_FILE"
+else
+    echo "Failed to add entry to $HOSTS_FILE"
+    exit 1
+fi
+
 # Check if index.html exists; generate only if missing
 if [ ! -f index.html ]; then
     echo "Downloading index.html."
