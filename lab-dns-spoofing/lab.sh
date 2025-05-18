@@ -1,8 +1,25 @@
 #!/bin/bash
 
-# Install nss-tools
+# Check if script is run as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root"
+    exit 1
+fi
 
-sudo yum install -y nss-tools
+# Install nss-tools
+yum install -y nss-tools
+
+# Variables for IP and hostname
+IP="127.0.0.1"
+HOSTNAME="www.smbc.co.jp"
+HOSTS_FILE="/etc/hosts"
+ENTRY="$IP $HOSTNAME"
+
+# Check if entry already exists
+if grep -q "$ENTRY" "$HOSTS_FILE"; then
+    echo "Entry already exists in hosts file"
+    exit 0
+fi
 
 # Check if index.html exists; generate only if missing
 if [ ! -f index.html ]; then
@@ -16,9 +33,9 @@ fi
 if [ ! -f cert.crt ] || [ ! -f key.pem ]; then
     echo "Generating SSL certificates..."
     openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.crt -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=localhost"
-    sudo cp cert.crt /etc/pki/tls/certs/
-    sudo update-ca-trust enable
-    sudo update-ca-trust extract
+    cp cert.crt /etc/pki/tls/certs/
+    update-ca-trust enable
+    update-ca-trust extract
 else
     echo "Using existing SSL certificates."
 fi
