@@ -38,6 +38,6 @@ find "$TARGET_DIR" -type f -name "*.sh" -exec chmod u+x {} \+ || {
 
 # Install required package
 echo "LAB> Installing reuqired packages..."
-sudo yum install tree -y
+sudo yum install tree -yq
 
 echo "LAB> Script completed successfully!"
